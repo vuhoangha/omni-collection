@@ -104,7 +104,8 @@ public class RingListHashMap<K, V> {
     }
 
     public V getValue(K key) {
-        return map.get(key).value;
+        RingListHashMapItem<K, V> item = map.get(key);
+        return item == null ? null : item.value;
     }
 
     public V getHeadValue() {

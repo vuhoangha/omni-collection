@@ -5,6 +5,7 @@ import net.openhft.chronicle.bytes.BytesOut;
 import net.openhft.chronicle.bytes.WriteBytesMarshallable;
 
 import java.util.LinkedList;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -54,6 +55,15 @@ public class RingListMarshallable<T extends WriteBytesMarshallable> implements W
     // dùng cẩn thận vì nó đang tham chiếu đến thẳng dữ liệu
     public T last(){
         return list.getLast();
+    }
+
+
+    // lặp từ phần tử cũ nhất tới mới nhất
+    public void foreach(Consumer<T> consumer) {
+        // lặp từ phần tử cũ nhất tới mới nhất
+        for (T element : list) {
+            consumer.accept(element);
+        }
     }
 
 

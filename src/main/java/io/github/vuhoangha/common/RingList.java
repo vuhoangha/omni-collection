@@ -1,6 +1,7 @@
 package io.github.vuhoangha.common;
 
 import java.util.LinkedList;
+import java.util.function.Consumer;
 
 /**
  * 1 List có tối đa "maxSize" item. Nếu đầy nó sẽ tự xóa phần tử cũ nhất và thêm mới
@@ -35,6 +36,15 @@ public class RingList<T> {
 
     public int size() {
         return list.size();
+    }
+
+
+    // lặp từ phần tử cũ nhất tới mới nhất
+    public void foreach(Consumer<T> consumer) {
+        // lặp từ phần tử cũ nhất tới mới nhất
+        for (T element : list) {
+            consumer.accept(element);
+        }
     }
 
 

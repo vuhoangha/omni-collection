@@ -31,9 +31,10 @@ public class RingListHashMap<K, V> {
     }
 
 
-    // thêm giá trị mới vào. Nếu đầy sẽ tự động xóa phần tử cũ nhất và thêm mới
-    public boolean push(K key, V value) {
-        if (size == capacity) return false;
+    // thêm giá trị mới vào
+    //      nếu đã có thì bỏ qua
+    //      nếu đầy sẽ tự động xóa phần tử cũ nhất và thêm mới
+    public boolean put(K key, V value) {
         if (map.containsKey(key)) return false;
 
         // nếu đầy, xóa phần tử cũ nhất

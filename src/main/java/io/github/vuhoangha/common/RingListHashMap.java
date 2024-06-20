@@ -3,6 +3,7 @@ package io.github.vuhoangha.common;
 import lombok.Getter;
 
 import java.util.HashMap;
+import java.util.function.BiConsumer;
 
 /**
  * Quản lý một danh sách phần tử theo thứ tự chèn vào
@@ -43,10 +44,15 @@ public class RingListHashMap<K, V> {
         newHead.key = key;
         newHead.value = value;
 
-        // cập nhật head
-        head.next = newHead;
-        newHead.prev = head;
-        head = newHead;
+        // cập nhật head, tail
+        if (size == 0) {
+            head = newHead;
+            tail = newHead;
+        } else {
+            head.next = newHead;
+            newHead.prev = head;
+            head = newHead;
+        }
 
         // cập nhật size
         size++;
@@ -64,9 +70,13 @@ public class RingListHashMap<K, V> {
 
         RingListHashMapItem<K, V> oldTail = tail;
 
-        // update tail mới
-        tail = tail.next;
-        tail.prev = null;
+        if (size == 1) {        // có 1 phần tử thì xóa đi thì head, tail bằng null
+            head = null;
+            tail = null;
+        } else {                // update tail mới
+            tail = tail.next;
+            tail.prev = null;
+        }
 
         // cập nhật số lượng phần tử
         size--;
@@ -89,18 +99,42 @@ public class RingListHashMap<K, V> {
         return map.containsKey(key);
     }
 
+    public RingListHashMapItem<K, V> get(K key) {
+        return map.get(key);
+    }
 
-    public V get(K key) {
+    public V getValue(K key) {
         return map.get(key).value;
+    }
+
+    public V getHeadValue() {
+        return head == null ? null : head.value;
+    }
+
+    public V getTailValue() {
+        return tail == null ? null : tail.value;
     }
 
 
     // di chuyển đến vị trí chính xác trong List nơi chứa key
-    public RingListHashMapItem<K, V> moveTo(K key){
-        if(map.containsKey(key)){
+    public RingListHashMapItem<K, V> moveTo(K key) {
+        if (map.containsKey(key)) {
             return map.get(key);
         }
         return null;
+    }
+
+
+    // lặp từ phần tử cũ nhất tới mới nhất
+    public void foreach(BiConsumer<K, V> consumer) {
+        if (size == 0) return;
+
+        RingListHashMapItem<K, V> cursor = tail;
+
+        do {
+            consumer.accept(cursor.key, cursor.value);
+            cursor = cursor.next;
+        } while (cursor != null);
     }
 
 

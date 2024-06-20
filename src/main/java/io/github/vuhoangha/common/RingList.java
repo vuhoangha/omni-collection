@@ -41,7 +41,6 @@ public class RingList<T> {
 
     // lặp từ phần tử cũ nhất tới mới nhất
     public void foreach(Consumer<T> consumer) {
-        // lặp từ phần tử cũ nhất tới mới nhất
         for (T element : list) {
             consumer.accept(element);
         }

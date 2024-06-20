@@ -60,7 +60,6 @@ public class RingListMarshallable<T extends WriteBytesMarshallable> implements W
 
     // lặp từ phần tử cũ nhất tới mới nhất
     public void foreach(Consumer<T> consumer) {
-        // lặp từ phần tử cũ nhất tới mới nhất
         for (T element : list) {
             consumer.accept(element);
         }

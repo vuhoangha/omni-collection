@@ -1,10 +1,13 @@
 package io.github.vuhoangha.common;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Executors;
@@ -12,6 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@Slf4j
 public class DiscordSender {
 
     private final String webhookUrl;
@@ -110,6 +114,16 @@ public class DiscordSender {
 
     public static void send(String message) {
         instance._send(message);
+    }
+
+    public static void send(String message, Object... arguments) {
+        instance._send(MessageFormat.format(message, arguments));
+    }
+
+    public static void send(Throwable ex, String message, Object... arguments) {
+        String wrapMsg = MessageFormat.format(message, arguments);
+        log.error(wrapMsg, ex);
+        instance._send(wrapMsg);
     }
 
     public static void shutdown() {

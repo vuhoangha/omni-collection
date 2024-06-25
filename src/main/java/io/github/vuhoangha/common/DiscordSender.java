@@ -116,8 +116,10 @@ public class DiscordSender {
         instance._send(message);
     }
 
-    public static void send(String message, Object... arguments) {
-        instance._send(MessageFormat.format(message, arguments));
+    public static String send(String message, Object... arguments) {
+        String wrapMsg = MessageFormat.format(message, arguments);
+        instance._send(wrapMsg);
+        return wrapMsg;
     }
 
     public static void error(String message) {
@@ -125,16 +127,16 @@ public class DiscordSender {
         log.error(message);
     }
 
-    public static void error(String message, Object... arguments) {
-        String wrapMsg = MessageFormat.format(message, arguments);
-        instance._send(wrapMsg);
+    public static String error(String message, Object... arguments) {
+        String wrapMsg = send(message, arguments);
         log.error(wrapMsg);
+        return wrapMsg;
     }
 
-    public static void error(Throwable ex, String message, Object... arguments) {
-        String wrapMsg = MessageFormat.format(message, arguments);
+    public static String error(Throwable ex, String message, Object... arguments) {
+        String wrapMsg = send(message, arguments);
         log.error(wrapMsg, ex);
-        instance._send(wrapMsg);
+        return wrapMsg;
     }
 
 

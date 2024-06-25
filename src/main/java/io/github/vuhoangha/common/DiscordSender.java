@@ -120,11 +120,23 @@ public class DiscordSender {
         instance._send(MessageFormat.format(message, arguments));
     }
 
-    public static void send(Throwable ex, String message, Object... arguments) {
+    public static void error(String message) {
+        instance._send(message);
+        log.error(message);
+    }
+
+    public static void error(String message, Object... arguments) {
+        String wrapMsg = MessageFormat.format(message, arguments);
+        instance._send(wrapMsg);
+        log.error(wrapMsg);
+    }
+
+    public static void error(Throwable ex, String message, Object... arguments) {
         String wrapMsg = MessageFormat.format(message, arguments);
         log.error(wrapMsg, ex);
         instance._send(wrapMsg);
     }
+
 
     public static void shutdown() {
         instance._shutdown();

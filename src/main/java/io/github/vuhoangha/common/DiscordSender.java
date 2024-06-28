@@ -10,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -23,17 +22,18 @@ public class DiscordSender {
     private final URL url;
 
     private final BlockingQueue<String> messageQueue;
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService executorService;
     private final AtomicBoolean isSending = new AtomicBoolean(false);
 
     private static DiscordSender instance;
 
 
-    private DiscordSender(String webhookUrl, int timeout, int queueCapacity) throws MalformedURLException {
+    private DiscordSender(String webhookUrl, int timeout, int queueCapacity, ExecutorService executorService) throws MalformedURLException {
         this.webhookUrl = webhookUrl;
         this.timeout = timeout;
         this.url = new URL(webhookUrl);
         this.messageQueue = new LinkedBlockingQueue<>(queueCapacity);
+        this.executorService = executorService;
     }
 
 
@@ -105,9 +105,9 @@ public class DiscordSender {
     }
 
 
-    public static synchronized DiscordSender init(String webhookUrl, int timeout, int queueCapacity) throws MalformedURLException {
+    public static synchronized DiscordSender init(String webhookUrl, int timeout, int queueCapacity, ExecutorService executorService) throws MalformedURLException {
         if (instance == null) {
-            instance = new DiscordSender(webhookUrl, timeout, queueCapacity);
+            instance = new DiscordSender(webhookUrl, timeout, queueCapacity, executorService);
         }
         return instance;
     }

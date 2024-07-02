@@ -139,5 +139,9 @@ public class RingListHashMap<K, V> {
         } while (cursor != null);
     }
 
+    public boolean isFull() {
+        return size == capacity;
+    }
+
 
 }

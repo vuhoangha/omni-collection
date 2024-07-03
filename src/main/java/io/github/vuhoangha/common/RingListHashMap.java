@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.function.BiConsumer;
 
 /**
+ * Hoạt động đơn luồng
  * Quản lý một danh sách phần tử theo thứ tự chèn vào
  * Giới hạn số phần tử tối đa, khi đầy sẽ tự động xóa phần tử cũ nhất và chèn phần tử mới vào
  * Có thể lấy phần tử cũ nhất, mới nhất, tổng số phần tử, giá trị phần tử theo key với O(1)

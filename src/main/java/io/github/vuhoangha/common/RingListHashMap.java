@@ -16,7 +16,9 @@ import java.util.function.BiConsumer;
  */
 public class RingListHashMap<K, V> {
 
+    @Getter
     private RingListHashMapItem<K, V> head;                                     // phần tử mới nhất chèn vào
+    @Getter
     private RingListHashMapItem<K, V> tail;                                     // phần tử cũ nhất chèn vào
     private final HashMap<K, RingListHashMapItem<K, V>> map;                    // dùng để chứa Key và tham chiếu tới giá trị
     @Getter

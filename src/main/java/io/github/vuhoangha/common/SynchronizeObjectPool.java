@@ -1,5 +1,7 @@
 package io.github.vuhoangha.common;
 
+import lombok.Getter;
+
 import java.util.function.Supplier;
 
 /**
@@ -9,14 +11,15 @@ public class SynchronizeObjectPool<T> {
 
     private final T[] pool;
     private final Supplier<T> factory;
-    private final int poolSize;
+    @Getter
+    private final int capacity;
     private int currentIndex = -1; // Chỉ số của phần tử tiếp theo sẽ được trả về
 
 
     public SynchronizeObjectPool(T[] pool, Supplier<T> factory) {
         this.factory = factory;
         this.pool = pool;
-        this.poolSize = pool.length;
+        this.capacity = pool.length;
     }
 
 
@@ -32,18 +35,29 @@ public class SynchronizeObjectPool<T> {
     }
 
 
-    public void push(T object) {
-        if (object != null && currentIndex < poolSize - 1) {
+    public boolean push(T object) {
+        if (object != null && currentIndex < capacity - 1) {
             currentIndex++;
             pool[currentIndex] = object;
+            return true;
         }
+        return false;
     }
 
 
     public void clear() {
         currentIndex = -1;
-        for (int i = 0; i < poolSize; i++) {
+        for (int i = 0; i < capacity; i++) {
             pool[i] = null;
         }
     }
+
+    public int getSize() {
+        return currentIndex + 1;
+    }
+
+    public boolean isFull() {
+        return currentIndex == capacity - 1;
+    }
+
 }

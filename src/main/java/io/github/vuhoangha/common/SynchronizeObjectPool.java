@@ -60,4 +60,8 @@ public class SynchronizeObjectPool<T> {
         return currentIndex == capacity - 1;
     }
 
+    public boolean isEmpty() {
+        return currentIndex == -1;
+    }
+
 }

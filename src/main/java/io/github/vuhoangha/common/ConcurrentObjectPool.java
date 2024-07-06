@@ -45,4 +45,17 @@ public class ConcurrentObjectPool<T> {
         }
     }
 
+
+    public int size() {
+        return currentSize.get();
+    }
+
+    public boolean isEmpty() {
+        return currentSize.get() == 0;
+    }
+
+    public boolean isFull() {
+        return currentSize.get() == poolSize;
+    }
+
 }

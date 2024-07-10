@@ -1,8 +1,6 @@
 package io.github.vuhoangha.common;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.IntBinaryOperator;
 import java.util.function.Supplier;
 
 /**
@@ -10,52 +8,49 @@ import java.util.function.Supplier;
  */
 public class ConcurrentObjectPool<T> {
 
-//    cho tôi ví dụ sử dụng Array để tạo object pool có kích thước cố định. Khi lấy phần tử trong pool, nếu có sẵn thì trả ra luôn, nếu ko thì tạo mới phần tử rồi trả. Khi thêm vào pool, nếu đầy rồi thì thôi không thêm
-
-    private final ConcurrentLinkedQueue<T> pool = new ConcurrentLinkedQueue<>();
-    private final AtomicInteger currentSize = new AtomicInteger(0);      // ko trực tiếp lấy size từ pool vì độ phức tạp thuật toán O(n)
+    private final T[] pool;
+    private final int capacity;
     private final Supplier<T> factory;
-    private final int poolSize;
-    private final IntBinaryOperator accumulatorFunc;
+    private final AtomicInteger index = new AtomicInteger(-1);
 
-
-    public ConcurrentObjectPool(int poolSize, Supplier<T> factory) {
-        this.poolSize = poolSize;
+    public ConcurrentObjectPool(T[] pool, Supplier<T> factory) {
+        this.capacity = pool.length;
         this.factory = factory;
-        accumulatorFunc = (current, unuse) -> current < poolSize ? current + 1 : current;        // hàm này khi được gọi sẽ trả về giá trị cũ trước khi cập nhật
+        this.pool = pool;
     }
 
 
     public T pop() {
-        T object = pool.poll();
-
-        if (object == null) {
-            return factory.get();
+        synchronized (pool) {
+            return index.get() <= -1
+                    ? factory.get()
+                    : pool[index.getAndDecrement()];
         }
-
-        currentSize.decrementAndGet();
-        return object;
     }
 
 
-    // pool chưa đầy mới thêm vào
-    public void push(T object) {
-        if (object != null && currentSize.getAndAccumulate(1, accumulatorFunc) < poolSize) {
-            pool.offer(object);
+    public boolean push(T object) {
+        synchronized (pool) {
+            if (index.get() + 1 >= capacity)
+                return false;
+            else {
+                pool[index.incrementAndGet()] = object;
+                return true;
+            }
         }
     }
 
 
     public int size() {
-        return currentSize.get();
+        return index.get() + 1;
     }
 
     public boolean isEmpty() {
-        return currentSize.get() == 0;
+        return index.get() == -1;
     }
 
     public boolean isFull() {
-        return currentSize.get() == poolSize;
+        return index.get() + 1 == capacity;
     }
 
 }

@@ -19,8 +19,8 @@ public class HybridObjectPool<T> {
     public HybridObjectPool(T[] pool, Supplier<T> factory) {
         this.capacity = pool.length;
         this.factory = factory;
-        popperPool = new SynchronizeObjectPool<>(pool, factory);
-        pusherPool = new ConcurrentObjectPool<>(capacity, factory);
+        popperPool = new SynchronizeObjectPool<>(pool.clone(), factory);
+        pusherPool = new ConcurrentObjectPool<>(pool.clone(), factory);
     }
 
 

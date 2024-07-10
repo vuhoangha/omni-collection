@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 /**
  * Object pool hoạt động trong môi trường đa luồng
  * học tập cách Lmax Disruptor
- * TODO kiểm tra lại logic xem đúng ko nhé
+ * TODO kiểm tra lại logic xem đúng ko nhé. Đang có nhiều case liên quan đến các luồng chưa chắc đã đúng đâu
  */
 public class ConcurrencyRingObjectPool<T> {
 

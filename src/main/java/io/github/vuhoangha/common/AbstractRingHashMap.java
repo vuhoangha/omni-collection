@@ -4,6 +4,7 @@ import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 /**
  * Hoạt động đơn luồng
@@ -14,47 +15,51 @@ import java.util.function.BiConsumer;
  * Insert, delete ở đầu, cuối danh sách O(1)
  * Insert, delete ở giữa danh sách O(n)
  */
-public class RingListHashMap<K, V> {
+@SuppressWarnings("UnusedReturnValue")
+public abstract class AbstractRingHashMap<K, V> {
 
     @Getter
-    private RingListHashMapItem<K, V> head;                                     // phần tử mới nhất chèn vào
+    protected IRingNode<K, V> head;                                     // phần tử mới nhất chèn vào
     @Getter
-    private RingListHashMapItem<K, V> tail;                                     // phần tử cũ nhất chèn vào
-    private final HashMap<K, RingListHashMapItem<K, V>> map;                    // dùng để chứa Key và tham chiếu tới giá trị
+    protected IRingNode<K, V> tail;                                     // phần tử cũ nhất chèn vào
+    protected final HashMap<K, IRingNode<K, V>> map;                    // dùng để chứa Key và tham chiếu tới giá trị
     @Getter
-    private int size;                                                           // tổng số phần tử hiện tại
-    private final int capacity;                                                 // tổng số phần tử tối đa
-    private final SynchronizeObjectPool<RingListHashMapItem<K, V>> itemPool;    // pool dự trữ các item trong danh sách, tránh việc khởi tạo
+    protected int size;                                                           // tổng số phần tử hiện tại
+    protected final int capacity;                                                 // tổng số phần tử tối đa
+    protected final SynchronizeObjectPool<IRingNode<K, V>> itemPool;    // pool dự trữ các item trong danh sách, tránh việc khởi tạo
 
 
-    public RingListHashMap(int capacity) {
+    public AbstractRingHashMap(int capacity, Supplier<IRingNode<K, V>> nodeFactory) {
         this.map = new HashMap<>();
         this.capacity = capacity;
-        this.itemPool = new SynchronizeObjectPool<>(new RingListHashMapItem[capacity], RingListHashMapItem::new);
+        this.itemPool = new SynchronizeObjectPool<>(new IRingNode[capacity], nodeFactory);
     }
 
 
-    // thêm giá trị mới vào
-    //      nếu đã có thì bỏ qua
-    //      nếu đầy sẽ tự động xóa phần tử cũ nhất và thêm mới
+    /**
+     * thêm giá trị mới vào
+     * nếu đã có thì bỏ qua
+     * nếu đầy sẽ tự động xóa phần tử cũ nhất và thêm mới
+     */
     public boolean put(K key, V value) {
+
         if (map.containsKey(key)) return false;
 
         // nếu đầy, xóa phần tử cũ nhất
         popIfFull();
 
         // lấy object để chứa phần tử mới từ pool và cập nhật giá trị
-        RingListHashMapItem<K, V> newHead = itemPool.pop();
-        newHead.key = key;
-        newHead.value = value;
+        IRingNode<K, V> newHead = itemPool.pop();
+        newHead.setKey(key);
+        newHead.setValue(value);
 
         // cập nhật head, tail
         if (size == 0) {
             head = newHead;
             tail = newHead;
         } else {
-            head.next = newHead;
-            newHead.prev = head;
+            head.setNext(newHead);
+            newHead.setPrev(head);
             head = newHead;
         }
 
@@ -70,26 +75,27 @@ public class RingListHashMap<K, V> {
 
     // lấy giá trị của phần tử cũ nhất nếu list đã đầy
     public V popIfFull() {
+
         if (size < capacity) return null;
 
-        RingListHashMapItem<K, V> oldTail = tail;
+        IRingNode<K, V> oldTail = tail;
 
         if (size == 1) {        // có 1 phần tử thì xóa đi thì head, tail bằng null
             head = null;
             tail = null;
         } else {                // update tail mới
-            tail = tail.next;
-            tail.prev = null;
+            tail = tail.getNext();
+            tail.setPrev(null);
         }
 
         // cập nhật số lượng phần tử
         size--;
 
         // xóa khỏi map
-        map.remove(oldTail.key);
+        map.remove(oldTail.getKey());
 
         // lấy giá trị của phần tử cũ nhất
-        V value = oldTail.value;
+        V value = oldTail.getValue();
 
         // reset phần tử cũ nhất và đẩy vào pool
         oldTail.clear();
@@ -103,26 +109,26 @@ public class RingListHashMap<K, V> {
         return map.containsKey(key);
     }
 
-    public RingListHashMapItem<K, V> get(K key) {
+    public IRingNode<K, V> get(K key) {
         return map.get(key);
     }
 
     public V getValue(K key) {
-        RingListHashMapItem<K, V> item = map.get(key);
-        return item == null ? null : item.value;
+        IRingNode<K, V> item = map.get(key);
+        return item == null ? null : item.getValue();
     }
 
     public V getHeadValue() {
-        return head == null ? null : head.value;
+        return head == null ? null : head.getValue();
     }
 
     public V getTailValue() {
-        return tail == null ? null : tail.value;
+        return tail == null ? null : tail.getValue();
     }
 
 
     // di chuyển đến vị trí chính xác trong List nơi chứa key
-    public RingListHashMapItem<K, V> moveTo(K key) {
+    public IRingNode<K, V> moveTo(K key) {
         if (map.containsKey(key)) {
             return map.get(key);
         }
@@ -134,11 +140,11 @@ public class RingListHashMap<K, V> {
     public void foreach(BiConsumer<K, V> consumer) {
         if (size == 0) return;
 
-        RingListHashMapItem<K, V> cursor = tail;
+        IRingNode<K, V> cursor = tail;
 
         do {
-            consumer.accept(cursor.key, cursor.value);
-            cursor = cursor.next;
+            consumer.accept(cursor.getKey(), cursor.getValue());
+            cursor = cursor.getNext();
         } while (cursor != null);
     }
 

@@ -139,4 +139,12 @@ public abstract class AbstractQueueHashMap<K, V> {
     }
 
 
+    public void clear() {
+        head = null;
+        tail = null;
+        map.clear();
+        size = 0;
+        itemPool.clear();
+    }
+
 }

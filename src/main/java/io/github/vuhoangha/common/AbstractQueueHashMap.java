@@ -82,6 +82,10 @@ public abstract class AbstractQueueHashMap<K, V> {
             if (removedNode.getNext() != null) removedNode.getNext().setPrev(removedNode.getPrev());
             // cập nhật node phía sau
             if (removedNode.getPrev() != null) removedNode.getPrev().setNext(removedNode.getNext());
+            // cập nhật tail
+            if(removedNode == tail) tail = removedNode.getNext();
+            // cập nhật head
+            if(removedNode == head) head = removedNode.getPrev();
         }
 
         // lấy giá trị của phần tử cũ nhất

@@ -17,7 +17,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class DiscordSender {
 
-    private final String webhookUrl;
     private final int timeout;
     private final URL url;
 
@@ -29,7 +28,6 @@ public class DiscordSender {
 
 
     private DiscordSender(String webhookUrl, int timeout, int queueCapacity, ExecutorService executorService) throws MalformedURLException {
-        this.webhookUrl = webhookUrl;
         this.timeout = timeout;
         this.url = new URL(webhookUrl);
         this.messageQueue = new LinkedBlockingQueue<>(queueCapacity);
@@ -52,10 +50,10 @@ public class DiscordSender {
                     _sendToDiscord(message);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                System.err.println("Message processing thread interrupted");
+                log.error("Message processing thread interrupted");
                 break;
             } catch (Exception e) {
-                System.err.println("Error sending message to Discord: " + e.getMessage());
+                log.error("Error sending message to Discord: {}", e.getMessage());
             }
         }
         isSending.set(false);
@@ -81,7 +79,6 @@ public class DiscordSender {
 
             int responseCode = connection.getResponseCode();
             if (responseCode != 200 && responseCode != 204) {
-                System.out.println("Error sending message to Discord: " + responseCode);
                 throw new Exception("Failed to send message to Discord. Response code: " + responseCode);
             }
         } finally {
@@ -96,11 +93,11 @@ public class DiscordSender {
         executorService.shutdownNow();
         try {
             if (!executorService.awaitTermination(timeout, TimeUnit.MILLISECONDS)) {
-                System.err.println("Executor did not terminate in the specified time.");
+                log.error("Executor did not terminate in the specified time.");
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            System.err.println("Shutdown interrupted");
+            log.error("Shutdown interrupted");
         }
     }
 

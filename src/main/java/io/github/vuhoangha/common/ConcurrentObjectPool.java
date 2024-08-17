@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 /**
  * Object Pool sử dụng trong môi trường đa luồng
  */
+// TODO thử với ý tưởng sử dụng Node queue như mình hay dùng ấy, có head, tail. Nhưng ở đây thêm 1 biến nữa là max head ý là node cao nhất khả dụng để ghi vào, đỡ phải chứa node vào pool
 public class ConcurrentObjectPool<T> {
 
     private final T[] pool;

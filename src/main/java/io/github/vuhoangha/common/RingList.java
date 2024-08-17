@@ -47,6 +47,11 @@ public class RingList<T> {
     }
 
 
+    public void clear(){
+        list.clear();
+    }
+
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("RingList{");

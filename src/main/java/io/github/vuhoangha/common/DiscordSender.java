@@ -13,6 +13,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.LockSupport;
 
 @Slf4j
 public class DiscordSender {
@@ -36,8 +37,8 @@ public class DiscordSender {
 
 
     private void _send(String message) {
-        messageQueue.offer(message);
         if (isSending.compareAndSet(false, true)) {
+            messageQueue.offer(message);
             executorService.submit(this::_process);
         }
     }
@@ -52,9 +53,9 @@ public class DiscordSender {
                 Thread.currentThread().interrupt();
                 log.error("Message processing thread interrupted");
                 break;
-            } catch (Exception e) {
-                log.error("Error sending message to Discord: {}", e.getMessage());
+            } catch (Exception ignore) {
             }
+            LockSupport.parkNanos(100_000_000L);
         }
         isSending.set(false);
     }
@@ -76,11 +77,7 @@ public class DiscordSender {
             try (OutputStream os = connection.getOutputStream()) {
                 os.write(outputBytes);
             }
-
-            int responseCode = connection.getResponseCode();
-            if (responseCode != 200 && responseCode != 204) {
-                throw new Exception("Failed to send message to Discord. Response code: " + responseCode);
-            }
+            connection.getResponseCode();
         } finally {
             if (connection != null) {
                 connection.disconnect();
@@ -120,19 +117,21 @@ public class DiscordSender {
     }
 
     public static void error(String message) {
-        instance._send(message);
         log.error(message);
+        instance._send(message);
     }
 
     public static String error(String message, Object... arguments) {
-        String wrapMsg = send(message, arguments);
+        String wrapMsg = MessageFormat.format(message, arguments);
         log.error(wrapMsg);
+        instance._send(wrapMsg);
         return wrapMsg;
     }
 
     public static String error(Throwable ex, String message, Object... arguments) {
-        String wrapMsg = send(message, arguments);
+        String wrapMsg = MessageFormat.format(message, arguments);
         log.error(wrapMsg, ex);
+        instance._send(wrapMsg);
         return wrapMsg;
     }
 

@@ -28,6 +28,11 @@ public class RingList<T> {
         list.addLast(element);
     }
 
+    public void safeAdd(T element) {
+        popOldestIfFull();
+        list.addLast(element);
+    }
+
 
     public T get(int index) {
         return list.get(index);

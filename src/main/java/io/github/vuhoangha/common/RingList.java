@@ -23,7 +23,6 @@ public class RingList<T> {
                 : null;
     }
 
-
     public void add(T element) {
         list.addLast(element);
     }
@@ -33,16 +32,13 @@ public class RingList<T> {
         list.addLast(element);
     }
 
-
     public T get(int index) {
         return list.get(index);
     }
 
-
     public int size() {
         return list.size();
     }
-
 
     // lặp từ phần tử cũ nhất tới mới nhất
     public void foreach(Consumer<T> consumer) {
@@ -51,11 +47,14 @@ public class RingList<T> {
         }
     }
 
-
-    public void clear(){
-        list.clear();
+    public T getLast() {
+        if (list.isEmpty()) return null;
+        return list.getLast();
     }
 
+    public void clear() {
+        list.clear();
+    }
 
     @Override
     public String toString() {

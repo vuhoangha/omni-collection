@@ -24,8 +24,8 @@ public abstract class AbstractRingHashMap<K, V> {
     protected IRingNode<K, V> tail;                                     // phần tử cũ nhất chèn vào
     protected final HashMap<K, IRingNode<K, V>> map;                    // dùng để chứa Key và tham chiếu tới giá trị
     @Getter
-    protected int size;                                                           // tổng số phần tử hiện tại
-    protected final int capacity;                                                 // tổng số phần tử tối đa
+    protected int size;                                                 // tổng số phần tử hiện tại
+    protected final int capacity;                                       // tổng số phần tử tối đa
     protected final SynchronizeObjectPool<IRingNode<K, V>> itemPool;    // pool dự trữ các item trong danh sách, tránh việc khởi tạo
 
 
@@ -148,9 +148,29 @@ public abstract class AbstractRingHashMap<K, V> {
         } while (cursor != null);
     }
 
+
     public boolean isFull() {
         return size == capacity;
     }
 
+
+    public void clear() {
+        if (size == 0) return;
+
+        // clean chain
+        IRingNode<K, V> cursor = tail;
+        do {
+            IRingNode<K, V> oldCursor = cursor;
+            cursor = cursor.getNext();
+            oldCursor.clear();
+            itemPool.push(oldCursor);
+        } while (cursor != null);
+
+        // reset info
+        head = null;
+        tail = null;
+        map.clear();
+        size = 0;
+    }
 
 }

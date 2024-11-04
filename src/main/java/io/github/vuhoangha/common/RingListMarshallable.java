@@ -28,35 +28,29 @@ public class RingListMarshallable<T extends WriteBytesMarshallable> implements W
         }
     }
 
-
     public T popOldestIfFull() {
         return list.size() == maxSize
                 ? list.removeFirst()
                 : null;
     }
 
-
     public void add(T element) {
         list.addLast(element);
     }
-
 
     public T get(int index) {
         return list.get(index);
     }
 
-
     public int size() {
         return list.size();
     }
-
 
     // lấy phần tử thêm vào mới nhất
     // dùng cẩn thận vì nó đang tham chiếu đến thẳng dữ liệu
     public T last(){
         return list.getLast();
     }
-
 
     // lặp từ phần tử cũ nhất tới mới nhất
     public void foreach(Consumer<T> consumer) {
@@ -65,6 +59,9 @@ public class RingListMarshallable<T extends WriteBytesMarshallable> implements W
         }
     }
 
+    public void clear() {
+        list.clear();
+    }
 
     @Override
     public void writeMarshallable(BytesOut bytes) {

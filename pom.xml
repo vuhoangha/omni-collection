@@ -6,7 +6,7 @@
 
     <groupId>io.github.vuhoangha</groupId>
     <artifactId>omni-collection</artifactId>
-    <version>1.0.36</version>
+    <version>1.0.39</version>
     <packaging>jar</packaging>
 
     <name>Omni Collection</name>

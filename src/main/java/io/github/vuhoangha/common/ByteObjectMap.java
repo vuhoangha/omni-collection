@@ -49,4 +49,9 @@ public class ByteObjectMap<T> {
         keys.forEach(key -> consumer.accept(values[key]));
     }
 
+    public void clear() {
+        keys.forEach(key -> values[key] = null);
+        keys.clear();
+    }
+
 }

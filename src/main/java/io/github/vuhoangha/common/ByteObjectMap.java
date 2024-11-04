@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- * dùng cho các Map có key nhỏ, giới hạn 1 khoảng nhất định
+ * dùng cho các Map có key nhỏ, giới hạn 1 khoảng nhất định. Key chính là index trong 1 mảng
  */
 public class ByteObjectMap<T> {
 

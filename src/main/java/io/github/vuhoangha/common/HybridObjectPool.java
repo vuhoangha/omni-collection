@@ -43,7 +43,7 @@ public class HybridObjectPool<T> {
         consumePool.push(item);
     }
 
-    public void push(List<T> items) {
+    public void push(Iterable<T> items) {
         consumePool.push(items);
     }
 

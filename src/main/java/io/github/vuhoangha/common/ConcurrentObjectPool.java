@@ -43,7 +43,7 @@ public class ConcurrentObjectPool<T> {
     }
 
 
-    public boolean push(List<T> objects) {
+    public boolean push(Iterable<T> objects) {
         synchronized (pool) {
             for (T t : objects) {
                 if (index.get() + 1 >= capacity)

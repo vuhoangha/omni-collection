@@ -1,5 +1,6 @@
 package io.github.vuhoangha.common;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -40,6 +41,10 @@ public class HybridObjectPool<T> {
 
     public void push(T item) {
         consumePool.push(item);
+    }
+
+    public void push(List<T> items) {
+        consumePool.push(items);
     }
 
 }

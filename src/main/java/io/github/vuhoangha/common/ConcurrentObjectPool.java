@@ -1,5 +1,6 @@
 package io.github.vuhoangha.common;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
@@ -39,6 +40,20 @@ public class ConcurrentObjectPool<T> {
                 return true;
             }
         }
+    }
+
+
+    public boolean push(List<T> objects) {
+        synchronized (pool) {
+            for (T t : objects) {
+                if (index.get() + 1 >= capacity)
+                    return false;
+                else {
+                    pool[index.incrementAndGet()] = t;
+                }
+            }
+        }
+        return true;
     }
 
 

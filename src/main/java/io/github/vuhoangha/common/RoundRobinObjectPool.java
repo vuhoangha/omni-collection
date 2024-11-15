@@ -1,6 +1,7 @@
 package io.github.vuhoangha.common;
 
 import java.util.Arrays;
+import java.util.function.Consumer;
 
 /**
  * Pool chứa các object mà khi lấy ra sẽ trả lần lượt theo thuật toán Round Robin
@@ -19,6 +20,7 @@ public class RoundRobinObjectPool<T> {
         this.capacity = pool.length;
     }
 
+
     public T get() {
         int nextIndex = (int) (++sequence % capacity);
         if (sequence == Long.MAX_VALUE) {
@@ -26,6 +28,14 @@ public class RoundRobinObjectPool<T> {
         }
         return pool[nextIndex];
     }
+
+
+    public void foreach(Consumer<T> action) {
+        for (T t : pool) {
+            action.accept(t);
+        }
+    }
+
 
     public void clear() {
         Arrays.fill(pool, null);
